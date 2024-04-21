@@ -1,10 +1,9 @@
-import os
 from fastapi import FastAPI, HTTPException
 import torch
 
 app = FastAPI()
 
-numbers = torch.tensor([50, 10, 5, 4, 2, 1])
+numbers = torch.tensor([50, 10, 5, 4, 2, 1, 1])
 
 operations = {
     "+": torch.add,
@@ -26,7 +25,7 @@ def closest_combination(target, total, index, numbers_list, operation="", closes
 
 @app.get("/maths/{user_input}")
 def calculate(user_input: int, api_key: str):
-    if api_key != os.getenv("API_KEY"):
+    if api_key != 9521383:
         raise HTTPException(status_code=400, detail="Invalid API key")
     closest_total, operation = closest_combination(user_input, 0, 0, numbers)
     return {"Closest total": closest_total.item(), "Operation used": operation}
