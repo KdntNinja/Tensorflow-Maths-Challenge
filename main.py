@@ -23,9 +23,7 @@ def closest_combination(target, total, index, numbers_list, operation="", closes
         closest = closest_combination(target, new_total, index + 1, numbers_list, new_operation, closest)
     return closest
 
-@app.get("/maths/{user_input}/{api_key}")
+@app.get("/maths/{user_input}")
 def calculate(user_input: int, api_key: str):
-    if api_key != "9521383":
-        raise HTTPException(status_code=400, detail="Invalid API key")
     closest_total, operation = closest_combination(user_input, 0, 0, numbers)
     return {"Closest total": closest_total.item(), "Operation used": operation}
