@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException
-from collections import deque
 import torch
 
 app = FastAPI()
@@ -8,27 +7,23 @@ numbers = torch.tensor([50, 10, 5, 4, 2, 1])
 operations = {"+": torch.add, "-": torch.sub, "*": torch.mul, "/": torch.div}
 
 def closest_combination(target, numbers_list):
-    memo = {}
-    queue = deque([(0, "")])
+    closest = [None] * (target + 1)
+    closest[0] = (0, "")
 
-    while queue:
-        total, path = queue.popleft()
+    for i in range(target + 1):
+        if closest[i] is not None:
+            for num in numbers_list:
+                for op, func in operations.items():
+                    if op == "/" and i < num.item():
+                        continue
+                    new_total = int(func(i, num.item()))
+                    if new_total <= target:
+                        new_path = f"{closest[i][1]} {op} {num.item()}"
+                        if closest[new_total] is None or abs(target - new_total) < abs(target - closest[new_total][0]):
+                            closest[new_total] = (new_total, new_path)
 
-        if (total, path) in memo:
-            continue
-
-        memo[(total, path)] = True
-
-        if abs(target - total) < abs(target - closest[0]):
-            closest = (total, path)
-
-        for num in numbers_list:
-            for op, func in operations.items():
-                new_total = func(total, num.item())
-                new_path = f"{path} {op} {num.item()}"
-                queue.append((new_total, new_path))
-
-    return closest
+    closest_total, operation = min(((total, operation) for total, operation in closest if total is not None), key=lambda x: abs(target - x[0]))
+    return closest_total
 
 @app.get("/maths/{user_input}")
 def calculate(user_input: int, api_key: str):
